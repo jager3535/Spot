@@ -22,7 +22,8 @@
             <FontIcon Glyph="&#xE721;" FontSize="20" Foreground="#CCFFFFFF" Margin="0,0,14,0" />
 
             <!-- Soluk tamamlama: sorgu kadarı saydam, kalanı soluk. TextBox ile aynı font ve hizada. -->
-            <TextBlock x:Name="Hayalet" Grid.Column="1" VerticalAlignment="Center"
+            <!-- Alt pay 1.6: TextBox metni TextBlock'tan ~1 px yukarıda çiziyor (125%'te ölçüldü). -->
+            <TextBlock x:Name="Hayalet" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,1.6"
                        FontSize="22" IsHitTestVisible="False" TextWrapping="NoWrap">
                 <Run x:Name="HayaletSorgu" Foreground="Transparent" /><Run x:Name="HayaletTamamlama" Foreground="#99FFFFFF" /><Run x:Name="HayaletEk" Foreground="#66FFFFFF" />
             </TextBlock>

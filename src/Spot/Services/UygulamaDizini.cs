@@ -145,6 +145,23 @@ sealed class UygulamaDizini
                 for (var i = 3; i < baytlar.Length && !alfaVar; i += 4) alfaVar = baytlar[i] != 0;
                 if (!alfaVar) for (var i = 3; i < baytlar.Length; i += 4) baytlar[i] = 255;
 
+                // WriteableBitmap önceden çarpılmış alfa ister. Kabuk çoğu ikonu düz alfa verir
+                // (rengi alfadan büyük piksel varsa düzdür); çarpmazsak kenarlarda saçak çıkar.
+                var duz = false;
+                for (var i = 0; i < baytlar.Length && !duz; i += 4)
+                {
+                    var a = baytlar[i + 3];
+                    duz = baytlar[i] > a || baytlar[i + 1] > a || baytlar[i + 2] > a;
+                }
+                if (duz)
+                    for (var i = 0; i < baytlar.Length; i += 4)
+                    {
+                        var a = baytlar[i + 3];
+                        baytlar[i] = (byte)(baytlar[i] * a / 255);
+                        baytlar[i + 1] = (byte)(baytlar[i + 1] * a / 255);
+                        baytlar[i + 2] = (byte)(baytlar[i + 2] * a / 255);
+                    }
+
                 return (en, boy, baytlar);
             }
             finally { Yerel.DeleteObject(hbm); }

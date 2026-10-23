@@ -86,7 +86,7 @@ public sealed partial class MainWindow : Window
         AppWindow.Move(new PointInt32(alan.X + alan.Width / 2, alan.Y + alan.Height / 2));
         var (en, boy) = Boyut();
         _konum = new PointInt32(alan.X + (alan.Width - en) / 2, alan.Y + (alan.Height - boy) / 2);
-        AppWindow.MoveAndResize(new RectInt32(_konum.X, _konum.Y, en, boy));
+        Yerlestir(en, boy);
 
         AppWindow.Show(true);
         Activate();
@@ -107,7 +107,17 @@ public sealed partial class MainWindow : Window
     {
         if (!AppWindow.IsVisible) return;
         var (en, boy) = Boyut();
-        AppWindow.MoveAndResize(new RectInt32(_konum.X, _konum.Y, en, boy));
+        Yerlestir(en, boy);
+    }
+
+    // İçerik alanı tam istenen boyda olsun. Dış boyutu doğrudan vermek çerçeve payını (125%'te 9 px)
+    // içerikten yer, panel alttan kırpılır; ResizeClient ise gizli başlık çubuğu için 38 px fazla
+    // ekler. Doğrusu: dış boyut = içerik + (dış - istemci) farkı.
+    void Yerlestir(int en, int boy)
+    {
+        var dw = AppWindow.Size.Width - AppWindow.ClientSize.Width;
+        var dh = AppWindow.Size.Height - AppWindow.ClientSize.Height;
+        AppWindow.MoveAndResize(new RectInt32(_konum.X, _konum.Y, en + dw, boy + dh));
     }
 
     void Kutu_TextChanged(object sender, TextChangedEventArgs e) => Guncelle();
@@ -150,7 +160,8 @@ public sealed partial class MainWindow : Window
         var e = _sonuclar[_secili];
         var tamamlama = _secili == 0 ? e.Tamamlama : "";
         HayaletTamamlama.Text = tamamlama;
-        HayaletEk.Text = e.Tur == EslesmeTuru.AdBasi && tamamlama.Length > 0 ? " — Aç" : " — " + e.Uygulama.Ad;
+        // Ad sorguyla başlıyorsa (tam yazılmış olsa bile) iPhone'daki gibi "— Aç".
+        HayaletEk.Text = _secili == 0 && e.Tur == EslesmeTuru.AdBasi ? " — Aç" : " — " + e.Uygulama.Ad;
     }
 
     Border Satir(Eslesme e, bool buyuk)
