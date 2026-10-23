@@ -1,4 +1,5 @@
 using Microsoft.UI;
+using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Text;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -27,6 +28,8 @@ public sealed partial class MainWindow : Window
     readonly KullanimSayaci _kullanim = new(Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Spot", "kullanim.json"));
     readonly KisayolDinleyici _kisayol;
+    readonly DesktopAcrylicController _cam;
+    readonly Perde _perde = new();
 
     List<Eslesme> _sonuclar = [];
     readonly List<Border> _satirlar = [];
@@ -39,7 +42,9 @@ public sealed partial class MainWindow : Window
         _hwnd = WindowNative.GetWindowHandle(this);
 
         ExtendsContentIntoTitleBar = true;
-        SystemBackdrop = new DesktopAcrylicBackdrop();
+        // İnce (Thin) acrylic, düşük renk/ışık oranı: arkası belirgin görünen cam.
+        // Karartılmış perdenin üstünde öne çıksın diye perdeden açık ton.
+        _cam = Cam.Uygula(this, DesktopAcrylicKind.Thin, ColorHelper.FromArgb(0xFF, 0x3A, 0x3A, 0x42), 0.35f, 0.3f);
         AppWindow.IsShownInSwitchers = false; // Alt+Tab'da ve görev çubuğunda görünmesin
         if (AppWindow.Presenter is OverlappedPresenter p)
         {
@@ -81,7 +86,9 @@ public sealed partial class MainWindow : Window
 
         // İmlecin bulunduğu ekranın tam ortası.
         Yerel.GetCursorPos(out var imlec);
-        var alan = DisplayArea.GetFromPoint(new PointInt32(imlec.X, imlec.Y), DisplayAreaFallback.Primary).WorkArea;
+        var ekran = DisplayArea.GetFromPoint(new PointInt32(imlec.X, imlec.Y), DisplayAreaFallback.Primary);
+        var alan = ekran.WorkArea;
+        _perde.Goster(ekran.OuterBounds); // önce perde, panel onun üstüne açılır
         // Önce hedef ekrana taşı ki ölçek (DPI) o ekranınki olsun, sonra boyutu hesapla.
         AppWindow.Move(new PointInt32(alan.X + alan.Width / 2, alan.Y + alan.Height / 2));
         var (en, boy) = Boyut();
@@ -94,7 +101,11 @@ public sealed partial class MainWindow : Window
         Kutu.Focus(FocusState.Programmatic);
     }
 
-    void Gizle() => AppWindow.Hide();
+    void Gizle()
+    {
+        AppWindow.Hide();
+        _perde.Gizle();
+    }
 
     /// <summary>İçeriğin istediği yükseklik, fiziksel piksel olarak. Kutu yerinde kalır, panel aşağı uzar.</summary>
     (int, int) Boyut()
