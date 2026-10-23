@@ -7,19 +7,27 @@
 
     <!-- Kok tüm ekranı kaplayan perde (saydam ama tıklanabilir); Panel ortadaki cam katman. -->
     <Grid x:Name="Kok" Background="Transparent">
-    <!-- Köşe 40 = kutunun 28'i + 12 iç boşluk: iç ve dış eğri eş merkezli durur. -->
-    <Border x:Name="Panel" HorizontalAlignment="Center" VerticalAlignment="Top"
-            CornerRadius="40" Padding="12"
-            Background="#16FFFFFF" BorderBrush="#26FFFFFF" BorderThickness="1">
-    <Grid>
+    <!-- Panel: Liquid Glass benzeri cam. Katmanlar alttan üste: gölge, gövde, üst parıltı,
+         iç kenar ışığı, dış parlak kenar, içerik. Köşe 40 = kutunun 28'i + 12 iç boşluk. -->
+    <Grid x:Name="Panel" HorizontalAlignment="Center" VerticalAlignment="Top">
+        <Border Margin="-10,6,-10,-22" CornerRadius="50" Background="#14000000" IsHitTestVisible="False" />
+        <Border Margin="-4,3,-4,-10" CornerRadius="44" Background="#1C000000" IsHitTestVisible="False" />
+        <Border CornerRadius="40" Background="{StaticResource CamDolgu}" />
+        <Border CornerRadius="40,40,0,0" Height="70" VerticalAlignment="Top"
+                Background="{StaticResource CamParilti}" IsHitTestVisible="False" />
+        <Border Margin="1.5" CornerRadius="38.5" BorderThickness="1"
+                BorderBrush="{StaticResource CamIcKenar}" IsHitTestVisible="False" />
+        <Border CornerRadius="40" BorderThickness="1.5"
+                BorderBrush="{StaticResource CamKenar}" IsHitTestVisible="False" />
+    <Grid Padding="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Hap şeklinde arama kutusu -->
+        <!-- Hap şeklinde arama kutusu: panelin içinde ikinci, daha küçük bir cam damlası -->
         <Grid Height="56" CornerRadius="28" Padding="20,0,10,0"
-              Background="#1FFFFFFF" BorderBrush="#24FFFFFF" BorderThickness="1">
+              Background="{StaticResource DamlaDolgu}" BorderBrush="{StaticResource DamlaKenar}" BorderThickness="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -62,6 +70,6 @@
             <StackPanel x:Name="DigerAlan" Spacing="2" />
         </StackPanel>
     </Grid>
-    </Border>
+    </Grid>
     </Grid>
 </Window>

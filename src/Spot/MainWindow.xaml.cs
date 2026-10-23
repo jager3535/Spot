@@ -19,8 +19,10 @@ public sealed partial class MainWindow : Window
     const double Genislik = 680;   // SABITLER.md
     const int EnFazlaSonuc = 6;    // en iyi eşleşenin altındaki uygulama sayısı
 
-    static readonly Brush SeciliArkaPlan = new SolidColorBrush(ColorHelper.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
-    static readonly Brush KartArkaPlan = new SolidColorBrush(ColorHelper.FromArgb(0x14, 0xFF, 0xFF, 0xFF));
+    // Seçili satır panelin içinde küçük bir cam damlası (App.xaml'daki Damla fırçaları).
+    static Brush DamlaDolgu => (Brush)Application.Current.Resources["DamlaDolgu"];
+    static Brush DamlaKenar => (Brush)Application.Current.Resources["DamlaKenar"];
+    static readonly Brush KartArkaPlan = new SolidColorBrush(ColorHelper.FromArgb(0x10, 0xFF, 0xFF, 0xFF));
     static readonly Brush Saydam = new SolidColorBrush(Colors.Transparent);
 
     readonly IntPtr _hwnd;
@@ -33,6 +35,7 @@ public sealed partial class MainWindow : Window
     List<Eslesme> _sonuclar = [];
     readonly List<Border> _satirlar = [];
     int _secili;
+    Windows.Foundation.Point? _sonFare;
 
     // Pencere tüm ekranı kaplayan bulanık perdedir; panel onun içinde çizilen bir katman.
     // Ayrı pencere olsaydı Windows köşeyi en fazla 8 px yuvarlardı.
@@ -83,6 +86,7 @@ public sealed partial class MainWindow : Window
     void Goster()
     {
         _ = _dizin.YenileGerekirse();
+        _sonFare = null;
         Kutu.Text = "";
         Guncelle();
 
@@ -191,15 +195,22 @@ public sealed partial class MainWindow : Window
         var satir = new Border
         {
             Child = icerik,
-            CornerRadius = new CornerRadius(buyuk ? 18 : 10),
+            // Panel 40, iç boşluk 12 → kart 28 (eş merkezli); küçük satırlar hap gibi.
+            CornerRadius = new CornerRadius(buyuk ? 28 : 18),
+            BorderThickness = new Thickness(1),
             Padding = buyuk ? new Thickness(14) : new Thickness(10, 7, 10, 7),
         };
         var sira = _satirlar.Count;
         satir.Tapped += (_, _) => Ac(sira);
         // PointerEntered değil: satırlar her tuşta yeniden kurulur, duran fare seçimi çalmasın.
-        satir.PointerMoved += (_, _) =>
+        satir.PointerMoved += (_, a) =>
         {
-            if (_secili == sira) return;
+            // Satır imlecin altında yeniden kurulunca da PointerMoved geliyor; fare yerinden
+            // oynamadıysa seçim en iyi eşleşmede kalsın.
+            var konum = a.GetCurrentPoint(null).Position;
+            var oynadi = _sonFare is { } s && s != konum;
+            _sonFare = konum;
+            if (!oynadi || _secili == sira) return;
             _secili = sira;
             SecimiBoya();
         };
@@ -212,7 +223,10 @@ public sealed partial class MainWindow : Window
     void SecimiBoya()
     {
         for (var i = 0; i < _satirlar.Count; i++)
-            _satirlar[i].Background = i == _secili ? SeciliArkaPlan : i == 0 ? KartArkaPlan : Saydam;
+        {
+            _satirlar[i].Background = i == _secili ? DamlaDolgu : i == 0 ? KartArkaPlan : Saydam;
+            _satirlar[i].BorderBrush = i == _secili ? DamlaKenar : Saydam;
+        }
         HayaletiGuncelle();
     }
 

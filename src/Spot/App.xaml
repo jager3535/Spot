@@ -9,6 +9,43 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
+            <!-- Liquid Glass benzeri cam dili. Işık sol üstten gelir: kenar orada parlak,
+                 sağ altta ince bir yansıma; gövde yukarıdan aşağı hafifçe koyulaşır. -->
+            <LinearGradientBrush x:Key="CamDolgu" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#30FFFFFF" Offset="0" />
+                <GradientStop Color="#14FFFFFF" Offset="0.45" />
+                <GradientStop Color="#0CFFFFFF" Offset="0.8" />
+                <GradientStop Color="#18FFFFFF" Offset="1" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="CamKenar" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#C8FFFFFF" Offset="0" />
+                <GradientStop Color="#40FFFFFF" Offset="0.22" />
+                <GradientStop Color="#0AFFFFFF" Offset="0.55" />
+                <GradientStop Color="#30FFFFFF" Offset="0.85" />
+                <GradientStop Color="#80FFFFFF" Offset="1" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="CamIcKenar" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#33FFFFFF" Offset="0" />
+                <GradientStop Color="#00FFFFFF" Offset="0.35" />
+                <GradientStop Color="#00FFFFFF" Offset="0.8" />
+                <GradientStop Color="#14FFFFFF" Offset="1" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="CamParilti" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#1FFFFFFF" Offset="0" />
+                <GradientStop Color="#00FFFFFF" Offset="1" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="DamlaDolgu" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#38FFFFFF" Offset="0" />
+                <GradientStop Color="#1AFFFFFF" Offset="0.6" />
+                <GradientStop Color="#24FFFFFF" Offset="1" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="DamlaKenar" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#A0FFFFFF" Offset="0" />
+                <GradientStop Color="#22FFFFFF" Offset="0.3" />
+                <GradientStop Color="#08FFFFFF" Offset="0.6" />
+                <GradientStop Color="#55FFFFFF" Offset="1" />
+            </LinearGradientBrush>
+
             <Style x:Key="BaslikStili" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="FontWeight" Value="SemiBold" />
