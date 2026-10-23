@@ -13,8 +13,9 @@ Sahibi: Hüseyin Albayrak.
 ## Kurallar
 
 - **Mimari önce, kod sonra.**
-- **Kapsam dışı listesine dokunulmaz.** Hüseyin yalnız uygulama açılmasını istedi: hızlı
-  eylem, web araması, dosya araması yok. Yeni özellik önerilmeden `notes.md`'ye bakılır.
+- **Kapsam dışı listesine dokunulmaz.** Hüseyin uygulama açılmasını + iki klasörü (Ekran
+  Görüntüleri, İndirilenler) istedi: hızlı eylem, web araması, genel dosya araması yok. Yeni
+  özellik önerilmeden `notes.md`'ye bakılır.
 - **`Eslestirici` test edilir.** "chr → Chrome" gibi kriterler Hüseyin'in sözlerinden gelir;
   `tests/Spot.Tests` bunları tutar. "Geçsin diye" test yazılmaz.
 - **Ek paket kurulmaz.** Windows App SDK bileşenleri + test projesinde xunit; başka yok.

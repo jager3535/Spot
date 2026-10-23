@@ -68,6 +68,8 @@
             <StackPanel x:Name="EnIyiAlan" />
             <TextBlock x:Name="DigerBaslik" Text="Uygulamalar" Style="{StaticResource BaslikStili}" Margin="8,10,0,4" />
             <StackPanel x:Name="DigerAlan" Spacing="2" />
+            <TextBlock x:Name="KlasorBaslik" Text="Klasörler" Style="{StaticResource BaslikStili}" Margin="8,10,0,4" />
+            <StackPanel x:Name="KlasorAlan" Spacing="2" />
         </StackPanel>
     </Grid>
     </Grid>

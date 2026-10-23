@@ -18,7 +18,10 @@ Referans: iPhone Spotlight ekran görüntüsü (`spot` yazınca kutuda soluk `sp
 ## İlk sürüme girmeyecek (bilinçli)
 
 - Hızlı eylemler (gizli pencere, yeni sekme vb.) — Hüseyin istemedi.
-- Web araması, dosya/klasör araması, hesap makinesi, ayar araması.
+- Web araması, genel dosya araması, hesap makinesi, ayar araması.
+  - İstisna (23.10, Hüseyin'in kararı): yalnız **Ekran Görüntüleri** ve **İndirilenler** klasörleri
+    aramada çıkar, ayrı "Klasörler" başlığıyla; eşleşirlerse yerleri ayrılır. Takma ad ve tam dosya
+    araması (ör. `/` önekiyle) önerildi, istenmedi.
 - Ayar ekranı. Kısayol `SABITLER.md`'de, değiştirmek kod değişikliği.
 - Tepsi (tray) ikonu.
 

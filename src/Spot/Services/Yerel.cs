@@ -60,6 +60,10 @@ static partial class Yerel
 
     // --- İkon: IShellItemImageFactory → HBITMAP → BGRA baytları ---
 
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+    public static extern int SHGetKnownFolderPath(ref Guid id, uint flags, IntPtr token,
+        [MarshalAs(UnmanagedType.LPWStr)] out string path);
+
     [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
     public static extern void SHCreateItemFromParsingName(string path, IntPtr bindCtx,
         [In] ref Guid riid, [MarshalAs(UnmanagedType.Interface)] out IShellItemImageFactory item);

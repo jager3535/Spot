@@ -87,6 +87,25 @@ public class EslestiriciTestleri
         Assert.Empty(Eslestirici.Ara("🎮x", liste));
     }
 
+    // Hüseyin: Ekran Görüntüleri klasörünü sık kullanıyor, uygulamalarla karışmasın.
+    // Aynı kademede hangisinin öne çıkacağına kullanım karar verir.
+    [Fact]
+    public void Klasor_ile_uygulama_kullanima_gore_siralanir()
+    {
+        var liste = Liste.Concat(new Uygulama[]
+        {
+            new("Ekran Alıntısı Aracı", "snip"),
+            new("Ekran Görüntüleri", @"C:\Users\h\Pictures\Screenshots", Klasor: true),
+            new("İndirilenler", @"C:\Users\h\Downloads", Klasor: true),
+        }).ToArray();
+
+        var e = Eslestirici.Ara("ekran", liste, k => k.EndsWith("Screenshots") ? 4 : 1)[0];
+        Assert.True(e.Uygulama.Klasor);
+        Assert.Equal("Ekran Görüntüleri", e.Uygulama.Ad);
+        Assert.Equal("Ekran Alıntısı Aracı", Eslestirici.Ara("ekran", liste, k => k == "snip" ? 4 : 1)[0].Uygulama.Ad);
+        Assert.Equal("İndirilenler", Eslestirici.Ara("indir", liste)[0].Uygulama.Ad);
+    }
+
     [Fact]
     public void Bos_sorgu_sonuc_vermez() => Assert.Empty(Eslestirici.Ara("  ", Liste));
 

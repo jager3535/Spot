@@ -33,7 +33,8 @@ public sealed partial class MainWindow : Window
     readonly DesktopAcrylicController _cam; // alanda tutulmazsa GC camı söker
 
     List<Eslesme> _sonuclar = [];
-    readonly List<Border> _satirlar = [];
+    readonly List<Border> _satirlar = [];     // ekrandaki sırayla
+    readonly List<Eslesme> _gosterilen = [];  // _satirlar ile aynı sırada, satırın öğesi
     int _secili;
     Windows.Foundation.Point? _sonFare;
 
@@ -137,7 +138,9 @@ public sealed partial class MainWindow : Window
 
         EnIyiAlan.Children.Clear();
         DigerAlan.Children.Clear();
+        KlasorAlan.Children.Clear();
         _satirlar.Clear();
+        _gosterilen.Clear();
 
         if (_sonuclar.Count == 0)
         {
@@ -147,19 +150,39 @@ public sealed partial class MainWindow : Window
         {
             Sonuclar.Visibility = Visibility.Visible;
             EnIyiAlan.Children.Add(Satir(_sonuclar[0], buyuk: true));
-            DigerBaslik.Visibility = Visibility.Visible;
+            DigerBaslik.Visibility = KlasorBaslik.Visibility = Visibility.Visible;
             // Kutu ortada sabit; liste ekranın altına çarpmadan sığdığı kadar satır gösterir.
-            foreach (var e in _sonuclar.Skip(1).Take(EnFazlaSonuc))
+            // Eşleşen klasörlere yer ayrılır (yalnız iki tane): uzun adları yüzünden puanda geride
+            // kalıp dar ekranda hiç görünmemeleri "ekran" aramasında yaşandı. Kalan yeri uygulamalar
+            // puan sırasıyla doldurur; her satır kendi grubunun sonuna eklenir.
+            var digerleri = _sonuclar.Skip(1).ToList();
+            var klasorler = digerleri.Where(e => e.Uygulama.Klasor).ToList();
+            var adaylar = klasorler.Concat(digerleri.Where(e => !e.Uygulama.Klasor)
+                .Take(Math.Max(0, EnFazlaSonuc - klasorler.Count)));
+            var satirlar = new Dictionary<Border, Eslesme> { [(Border)EnIyiAlan.Children[0]] = _sonuclar[0] };
+            foreach (var e in adaylar)
             {
                 var satir = Satir(e, buyuk: false);
-                DigerAlan.Children.Add(satir);
+                var grup = e.Uygulama.Klasor ? KlasorAlan : DigerAlan;
+                grup.Children.Add(satir);
                 Panel.Measure(new Windows.Foundation.Size(Genislik, double.PositiveInfinity));
-                if (Panel.DesiredSize.Height <= _altSinir) continue; // DesiredSize üst boşluğu da içerir
-                DigerAlan.Children.Remove(satir);
-                _satirlar.Remove(satir);
+                if (Panel.DesiredSize.Height <= _altSinir) // DesiredSize üst boşluğu da içerir
+                {
+                    satirlar[satir] = e;
+                    continue;
+                }
+                grup.Children.Remove(satir);
                 break;
             }
             if (DigerAlan.Children.Count == 0) DigerBaslik.Visibility = Visibility.Collapsed;
+            if (KlasorAlan.Children.Count == 0) KlasorBaslik.Visibility = Visibility.Collapsed;
+
+            // Seçim sırası ekrandaki sırayla aynı: en iyi, uygulamalar, klasörler.
+            foreach (var s in EnIyiAlan.Children.Concat(DigerAlan.Children).Concat(KlasorAlan.Children).Cast<Border>())
+            {
+                _satirlar.Add(s);
+                _gosterilen.Add(satirlar[s]);
+            }
         }
 
         SecimiBoya();
@@ -169,12 +192,12 @@ public sealed partial class MainWindow : Window
     void HayaletiGuncelle()
     {
         HayaletSorgu.Text = Kutu.Text;
-        if (_sonuclar.Count == 0 || Kutu.Text.Length == 0 || Kutu.Text.EndsWith(' '))
+        if (_gosterilen.Count == 0 || Kutu.Text.Length == 0 || Kutu.Text.EndsWith(' '))
         {
             HayaletTamamlama.Text = HayaletEk.Text = "";
             return;
         }
-        var e = _sonuclar[_secili];
+        var e = _gosterilen[_secili];
         var tamamlama = _secili == 0 ? e.Tamamlama : "";
         HayaletTamamlama.Text = tamamlama;
         // Ad sorguyla başlıyorsa (tam yazılmış olsa bile) iPhone'daki gibi "— Aç".
@@ -196,7 +219,7 @@ public sealed partial class MainWindow : Window
             TextTrimming = TextTrimming.CharacterEllipsis,
         });
         if (buyuk)
-            metin.Children.Add(new TextBlock { Text = "Uygulama", FontSize = 13, Foreground = new SolidColorBrush(ColorHelper.FromArgb(0x99, 0xFF, 0xFF, 0xFF)) });
+            metin.Children.Add(new TextBlock { Text = e.Uygulama.Klasor ? "Klasör" : "Uygulama", FontSize = 13, Foreground = new SolidColorBrush(ColorHelper.FromArgb(0x99, 0xFF, 0xFF, 0xFF)) });
 
         var icerik = new Grid();
         icerik.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -213,8 +236,8 @@ public sealed partial class MainWindow : Window
             BorderThickness = new Thickness(1),
             Padding = buyuk ? new Thickness(14) : new Thickness(10, 7, 10, 7),
         };
-        var sira = _satirlar.Count;
-        satir.Tapped += (_, _) => Ac(sira);
+        // Sıra olay anında bulunur: satırlar gruplara dağıldıktan sonra yeniden sıralanıyor.
+        satir.Tapped += (_, _) => Ac(_satirlar.IndexOf(satir));
         // PointerEntered değil: satırlar her tuşta yeniden kurulur, duran fare seçimi çalmasın.
         satir.PointerMoved += (_, a) =>
         {
@@ -223,11 +246,11 @@ public sealed partial class MainWindow : Window
             var konum = a.GetCurrentPoint(null).Position;
             var oynadi = _sonFare is { } s && s != konum;
             _sonFare = konum;
-            if (!oynadi || _secili == sira) return;
+            var sira = _satirlar.IndexOf(satir);
+            if (!oynadi || sira < 0 || _secili == sira) return;
             _secili = sira;
             SecimiBoya();
         };
-        _satirlar.Add(satir);
         return satir;
     }
 
@@ -275,7 +298,7 @@ public sealed partial class MainWindow : Window
     void Ac(int sira)
     {
         if (sira < 0 || sira >= _satirlar.Count) return;
-        var u = _sonuclar[sira].Uygulama;
+        var u = _gosterilen[sira].Uygulama;
         Gizle();
         try
         {

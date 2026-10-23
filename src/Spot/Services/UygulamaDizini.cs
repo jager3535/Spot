@@ -60,9 +60,10 @@ sealed class UygulamaDizini
             Gunluk.Yaz("Tarama başarısız: " + e);
             return;
         }
+        var klasorler = Klasorler();
         _sonTarama = DateTime.Now;
-        Liste = liste;
-        Gunluk.Yaz($"Tarama: {liste.Count} uygulama");
+        Liste = [.. liste, .. klasorler];
+        Gunluk.Yaz($"Tarama: {liste.Count} uygulama, {klasorler.Count} klasör");
         Yenilendi?.Invoke();
     }
 
@@ -95,13 +96,34 @@ sealed class UygulamaDizini
         return sonuc;
     }
 
+    // Aramada çıkan klasörler: yalnız bu ikisi (Hüseyin'in kararı, 23.10; SABITLER.md).
+    // Yollar Windows'tan sorulur, taşınmış olsalar da doğru yeri bulur.
+    static readonly (string Ad, Guid Kimlik)[] SabitKlasorler =
+    [
+        ("Ekran Görüntüleri", new("b7bede81-df94-4682-a7d8-57a52620b86f")), // FOLDERID_Screenshots
+        ("İndirilenler", new("374DE290-123F-4565-9164-39C4925E467B")),      // FOLDERID_Downloads
+    ];
+
+    static List<Uygulama> Klasorler()
+    {
+        var sonuc = new List<Uygulama>();
+        foreach (var (ad, kimlik) in SabitKlasorler)
+        {
+            var guid = kimlik;
+            if (Yerel.SHGetKnownFolderPath(ref guid, 0, IntPtr.Zero, out var yol) == 0 && Directory.Exists(yol))
+                sonuc.Add(new Uygulama(ad, yol, Klasor: true));
+        }
+        return sonuc;
+    }
+
     /// <summary>İkonu önbellekten verir, yoksa üretir. UI iş parçacığından çağrılmalı.</summary>
     public async Task<ImageSource?> Ikon(Uygulama u, int piksel)
     {
         var anahtar = u.Kimlik + "|" + piksel;
         if (_ikonlar.TryGetValue(anahtar, out var hazir)) return hazir;
 
-        var veri = await Kabukta(() => IkonPikselleri(u.Kimlik, piksel));
+        var ayristirma = u.Klasor ? u.Kimlik : $@"{AppsFolder}\{u.Kimlik}";
+        var veri = await Kabukta(() => IkonPikselleri(ayristirma, piksel));
         if (veri is null) return null;
 
         var (en, boy, baytlar) = veri.Value;
@@ -112,11 +134,11 @@ sealed class UygulamaDizini
         return bmp;
     }
 
-    static (int, int, byte[])? IkonPikselleri(string kimlik, int piksel)
+    static (int, int, byte[])? IkonPikselleri(string ayristirma, int piksel)
     {
         var iid = typeof(Yerel.IShellItemImageFactory).GUID;
         Yerel.IShellItemImageFactory fabrika;
-        try { Yerel.SHCreateItemFromParsingName($@"{AppsFolder}\{kimlik}", IntPtr.Zero, ref iid, out fabrika); }
+        try { Yerel.SHCreateItemFromParsingName(ayristirma, IntPtr.Zero, ref iid, out fabrika); }
         catch (COMException) { return null; }
 
         try
@@ -170,5 +192,5 @@ sealed class UygulamaDizini
     }
 
     public static void Baslat(Uygulama u) =>
-        Process.Start(new ProcessStartInfo($@"{AppsFolder}\{u.Kimlik}") { UseShellExecute = true })?.Dispose();
+        Process.Start(new ProcessStartInfo(u.Klasor ? u.Kimlik : $@"{AppsFolder}\{u.Kimlik}") { UseShellExecute = true })?.Dispose();
 }
