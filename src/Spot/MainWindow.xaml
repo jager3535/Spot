@@ -5,7 +5,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Spot">
 
-    <Grid x:Name="Kok" Padding="12" VerticalAlignment="Top">
+    <!-- Kok tüm ekranı kaplayan perde (saydam ama tıklanabilir); Panel ortadaki cam katman. -->
+    <Grid x:Name="Kok" Background="Transparent">
+    <!-- Köşe 40 = kutunun 28'i + 12 iç boşluk: iç ve dış eğri eş merkezli durur. -->
+    <Border x:Name="Panel" HorizontalAlignment="Center" VerticalAlignment="Top"
+            CornerRadius="40" Padding="12"
+            Background="#16FFFFFF" BorderBrush="#26FFFFFF" BorderThickness="1">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -55,5 +61,7 @@
             <TextBlock x:Name="DigerBaslik" Text="Uygulamalar" Style="{StaticResource BaslikStili}" Margin="8,10,0,4" />
             <StackPanel x:Name="DigerAlan" Spacing="2" />
         </StackPanel>
+    </Grid>
+    </Border>
     </Grid>
 </Window>

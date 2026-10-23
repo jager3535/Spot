@@ -28,23 +28,21 @@ public sealed partial class MainWindow : Window
     readonly KullanimSayaci _kullanim = new(Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Spot", "kullanim.json"));
     readonly KisayolDinleyici _kisayol;
-    readonly DesktopAcrylicController _cam;
-    readonly Perde _perde = new();
+    readonly DesktopAcrylicController _cam; // alanda tutulmazsa GC camı söker
 
     List<Eslesme> _sonuclar = [];
     readonly List<Border> _satirlar = [];
     int _secili;
-    PointInt32 _konum;
 
+    // Pencere tüm ekranı kaplayan bulanık perdedir; panel onun içinde çizilen bir katman.
+    // Ayrı pencere olsaydı Windows köşeyi en fazla 8 px yuvarlardı.
     public MainWindow()
     {
         InitializeComponent();
         _hwnd = WindowNative.GetWindowHandle(this);
 
         ExtendsContentIntoTitleBar = true;
-        // İnce (Thin) acrylic, düşük renk/ışık oranı: arkası belirgin görünen cam.
-        // Karartılmış perdenin üstünde öne çıksın diye perdeden açık ton.
-        _cam = Cam.Uygula(this, DesktopAcrylicKind.Thin, ColorHelper.FromArgb(0xFF, 0x3A, 0x3A, 0x42), 0.35f, 0.3f);
+        _cam = Cam.Uygula(this, DesktopAcrylicKind.Base, ColorHelper.FromArgb(0xFF, 0x0A, 0x0A, 0x0C), 0.45f, 0.35f);
         AppWindow.IsShownInSwitchers = false; // Alt+Tab'da ve görev çubuğunda görünmesin
         if (AppWindow.Presenter is OverlappedPresenter p)
         {
@@ -52,8 +50,12 @@ public sealed partial class MainWindow : Window
             p.IsMaximizable = false;
             p.IsMinimizable = false;
             p.IsAlwaysOnTop = true;
-            p.SetBorderAndTitleBar(true, false);
+            p.SetBorderAndTitleBar(false, false);
         }
+        CerceveyiKaldir();
+
+        // Panelin dışına (perdeye) tıklamak Spot'u kapatır.
+        Kok.Tapped += (_, e) => { if (e.OriginalSource == Kok) Gizle(); };
 
         // Alt+F4 pencereyi kapatırsa süreç ve kısayol da gider; kapatmak yerine gizle.
         AppWindow.Closing += (_, a) => { a.Cancel = true; Gizle(); };
@@ -84,16 +86,16 @@ public sealed partial class MainWindow : Window
         Kutu.Text = "";
         Guncelle();
 
-        // İmlecin bulunduğu ekranın tam ortası.
+        // İmlecin bulunduğu ekranı kapla; kutu çalışma alanının (görev çubuğu hariç) tam ortasında.
+        // Kutu yerinde kalır, sonuçlar aşağı uzar.
         Yerel.GetCursorPos(out var imlec);
         var ekran = DisplayArea.GetFromPoint(new PointInt32(imlec.X, imlec.Y), DisplayAreaFallback.Primary);
+        var dis = ekran.OuterBounds;
         var alan = ekran.WorkArea;
-        _perde.Goster(ekran.OuterBounds); // önce perde, panel onun üstüne açılır
-        // Önce hedef ekrana taşı ki ölçek (DPI) o ekranınki olsun, sonra boyutu hesapla.
-        AppWindow.Move(new PointInt32(alan.X + alan.Width / 2, alan.Y + alan.Height / 2));
-        var (en, boy) = Boyut();
-        _konum = new PointInt32(alan.X + (alan.Width - en) / 2, alan.Y + (alan.Height - boy) / 2);
-        Yerlestir(en, boy);
+        AppWindow.MoveAndResize(dis);
+        var ortaY = (alan.Y - dis.Y + alan.Height / 2.0) / Olcek;
+        Panel.Width = Genislik;
+        Panel.Margin = new Thickness(0, Math.Max(0, ortaY - KapaliYukseklik / 2), 0, 0);
 
         AppWindow.Show(true);
         Activate();
@@ -101,34 +103,22 @@ public sealed partial class MainWindow : Window
         Kutu.Focus(FocusState.Programmatic);
     }
 
-    void Gizle()
-    {
-        AppWindow.Hide();
-        _perde.Gizle();
-    }
+    const double KapaliYukseklik = 80; // sonuç yokken panel: 12 + 56 kutu + 12
 
-    /// <summary>İçeriğin istediği yükseklik, fiziksel piksel olarak. Kutu yerinde kalır, panel aşağı uzar.</summary>
-    (int, int) Boyut()
-    {
-        Kok.Measure(new Windows.Foundation.Size(Genislik, double.PositiveInfinity));
-        return ((int)Math.Ceiling(Genislik * Olcek), (int)Math.Ceiling(Kok.DesiredSize.Height * Olcek));
-    }
+    void Gizle() => AppWindow.Hide();
 
-    void BoyutuUydur()
+    // SetBorderAndTitleBar(false,false) boyutlandırma çerçevesini bırakıyor (ekran kenarında 3 px açık
+    // çizgi); DWM de kenarlık ve köşe yuvarlaması ekliyor. Saf, çerçevesiz açılır pencere yap.
+    void CerceveyiKaldir()
     {
-        if (!AppWindow.IsVisible) return;
-        var (en, boy) = Boyut();
-        Yerlestir(en, boy);
-    }
-
-    // İçerik alanı tam istenen boyda olsun. Dış boyutu doğrudan vermek çerçeve payını (125%'te 9 px)
-    // içerikten yer, panel alttan kırpılır; ResizeClient ise gizli başlık çubuğu için 38 px fazla
-    // ekler. Doğrusu: dış boyut = içerik + (dış - istemci) farkı.
-    void Yerlestir(int en, int boy)
-    {
-        var dw = AppWindow.Size.Width - AppWindow.ClientSize.Width;
-        var dh = AppWindow.Size.Height - AppWindow.ClientSize.Height;
-        AppWindow.MoveAndResize(new RectInt32(_konum.X, _konum.Y, en + dw, boy + dh));
+        int yok = Yerel.DWMWA_COLOR_NONE, koseYok = Yerel.DWMWCP_DONOTROUND;
+        Yerel.DwmSetWindowAttribute(_hwnd, Yerel.DWMWA_BORDER_COLOR, ref yok, sizeof(int));
+        Yerel.DwmSetWindowAttribute(_hwnd, Yerel.DWMWA_WINDOW_CORNER_PREFERENCE, ref koseYok, sizeof(int));
+        var stil = (long)Yerel.GetWindowLongPtr(_hwnd, Yerel.GWL_STYLE);
+        stil = (stil & ~(Yerel.WS_CAPTION | Yerel.WS_THICKFRAME)) | Yerel.WS_POPUP;
+        Yerel.SetWindowLongPtr(_hwnd, Yerel.GWL_STYLE, (IntPtr)stil);
+        Yerel.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, 0, 0,
+            Yerel.SWP_NOMOVE | Yerel.SWP_NOSIZE | Yerel.SWP_NOZORDER | Yerel.SWP_NOACTIVATE | Yerel.SWP_FRAMECHANGED);
     }
 
     void Kutu_TextChanged(object sender, TextChangedEventArgs e) => Guncelle();
@@ -156,7 +146,6 @@ public sealed partial class MainWindow : Window
         }
 
         SecimiBoya();
-        BoyutuUydur();
     }
 
     /// <summary>Kutudaki soluk tamamlama, seçili sonuca göre: "chr" + "ome" + " — Google Chrome".</summary>
