@@ -12,6 +12,8 @@ Referans: iPhone Spotlight ekran görüntüsü (`spot` yazınca kutuda soluk `sp
   sık açılan uygulama aynı kademede üste çıkar.
 - Uygulama listesi `shell:AppsFolder`'dan gelir: Başlat menüsündeki masaüstü + Store uygulamaları.
 - Bilgisayar açılınca arka planda sessizce başlar; tek örnek çalışır.
+- **Buzlu cam ikisi birden** (23.10, Hüseyin seçti): tüm ekran bulanık + kararmış perde, panel
+  kendisi de ayrı, daha açık bir cam. Perdeye tıklamak Spot'u kapatır.
 
 ## İlk sürüme girmeyecek (bilinçli)
 
