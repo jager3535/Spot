@@ -80,6 +80,14 @@ public class EslestiriciTestleri
     }
 
     [Fact]
+    public void Emojili_ad_ve_sorgu_cokertmez()
+    {
+        var liste = Liste.Append(new Uygulama("Oyun 🎮 Merkezi", "oyun")).ToArray();
+        Assert.Equal("Oyun 🎮 Merkezi", Eslestirici.Ara("oyun", liste)[0].Uygulama.Ad);
+        Assert.Empty(Eslestirici.Ara("🎮x", liste));
+    }
+
+    [Fact]
     public void Bos_sorgu_sonuc_vermez() => Assert.Empty(Eslestirici.Ara("  ", Liste));
 
     [Fact]

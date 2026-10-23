@@ -50,6 +50,9 @@ public sealed partial class MainWindow : Window
             p.SetBorderAndTitleBar(true, false);
         }
 
+        // Alt+F4 pencereyi kapatırsa süreç ve kısayol da gider; kapatmak yerine gizle.
+        AppWindow.Closing += (_, a) => { a.Cancel = true; Gizle(); };
+
         Activated += (_, e) =>
         {
             if (e.WindowActivationState == WindowActivationState.Deactivated) Gizle();
@@ -79,6 +82,8 @@ public sealed partial class MainWindow : Window
         // İmlecin bulunduğu ekranın tam ortası.
         Yerel.GetCursorPos(out var imlec);
         var alan = DisplayArea.GetFromPoint(new PointInt32(imlec.X, imlec.Y), DisplayAreaFallback.Primary).WorkArea;
+        // Önce hedef ekrana taşı ki ölçek (DPI) o ekranınki olsun, sonra boyutu hesapla.
+        AppWindow.Move(new PointInt32(alan.X + alan.Width / 2, alan.Y + alan.Height / 2));
         var (en, boy) = Boyut();
         _konum = new PointInt32(alan.X + (alan.Width - en) / 2, alan.Y + (alan.Height - boy) / 2);
         AppWindow.MoveAndResize(new RectInt32(_konum.X, _konum.Y, en, boy));
@@ -180,7 +185,13 @@ public sealed partial class MainWindow : Window
         };
         var sira = _satirlar.Count;
         satir.Tapped += (_, _) => Ac(sira);
-        satir.PointerEntered += (_, _) => { _secili = sira; SecimiBoya(); };
+        // PointerEntered değil: satırlar her tuşta yeniden kurulur, duran fare seçimi çalmasın.
+        satir.PointerMoved += (_, _) =>
+        {
+            if (_secili == sira) return;
+            _secili = sira;
+            SecimiBoya();
+        };
         _satirlar.Add(satir);
         return satir;
     }
@@ -233,6 +244,7 @@ public sealed partial class MainWindow : Window
             UygulamaDizini.Baslat(u);
             _kullanim.Artir(u.Kimlik);
         }
-        catch (System.ComponentModel.Win32Exception) { } // Kaldırılmış uygulama: bir sonraki taramada listeden düşer.
+        // Kaldırılmış uygulama vb.: bir sonraki taramada listeden düşer.
+        catch (Exception e) { Gunluk.Yaz($"Açılamadı ({u.Ad}): {e.Message}"); }
     }
 }

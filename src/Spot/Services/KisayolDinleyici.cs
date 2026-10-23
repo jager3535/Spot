@@ -22,7 +22,9 @@ sealed class KisayolDinleyici : IDisposable
     {
         if (msg == Yerel.WM_HOTKEY && wParam == Kimlik)
         {
-            Basildi?.Invoke();
+            // Yerel geri çağrıdan kaçan istisna süreci öldürür.
+            try { Basildi?.Invoke(); }
+            catch (Exception e) { Gunluk.Yaz("Kısayol işlenemedi: " + e); }
             return IntPtr.Zero;
         }
         return Yerel.DefSubclassProc(hWnd, msg, wParam, lParam);

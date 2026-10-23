@@ -60,9 +60,9 @@ sealed class UygulamaDizini
             Gunluk.Yaz("Tarama başarısız: " + e);
             return;
         }
-        Gunluk.Yaz($"Tarama: {liste.Count} uygulama");
         _sonTarama = DateTime.Now;
         Liste = liste;
+        Gunluk.Yaz($"Tarama: {liste.Count} uygulama");
         Yenilendi?.Invoke();
     }
 
@@ -75,10 +75,12 @@ sealed class UygulamaDizini
         try
         {
             dynamic klasor = kabuk.NameSpace(AppsFolder);
-            foreach (dynamic oge in klasor.Items())
+            dynamic ogeler = klasor.Items();
+            foreach (dynamic oge in ogeler)
             {
                 string ad = oge.Name;
                 string yol = oge.Path;
+                Marshal.ReleaseComObject(oge);
                 if (string.IsNullOrWhiteSpace(ad) || string.IsNullOrWhiteSpace(yol)) continue;
                 var kucuk = ad.ToLowerInvariant();
                 if (AtlananKelimeler.Any(kucuk.Contains)) continue;
@@ -86,6 +88,8 @@ sealed class UygulamaDizini
                 if (AtlananUzantilar.Any(u => yol.EndsWith(u, StringComparison.OrdinalIgnoreCase))) continue;
                 if (gorulen.Add(ad)) sonuc.Add(new Uygulama(ad, yol));
             }
+            Marshal.ReleaseComObject(ogeler);
+            Marshal.ReleaseComObject(klasor);
         }
         finally { Marshal.FinalReleaseComObject(kabuk); }
         return sonuc;
@@ -124,6 +128,7 @@ sealed class UygulamaDizini
             {
                 Yerel.GetObject(hbm, Marshal.SizeOf<Yerel.BITMAP>(), out var bilgi);
                 int en = bilgi.bmWidth, boy = bilgi.bmHeight;
+                if (en <= 0 || boy <= 0) return null;
                 var bi = new Yerel.BITMAPINFOHEADER
                 {
                     biSize = Marshal.SizeOf<Yerel.BITMAPINFOHEADER>(),
@@ -148,5 +153,5 @@ sealed class UygulamaDizini
     }
 
     public static void Baslat(Uygulama u) =>
-        Process.Start(new ProcessStartInfo($@"{AppsFolder}\{u.Kimlik}") { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo($@"{AppsFolder}\{u.Kimlik}") { UseShellExecute = true })?.Dispose();
 }

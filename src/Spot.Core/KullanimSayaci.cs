@@ -17,7 +17,7 @@ public sealed class KullanimSayaci(string dosyaYolu)
             Directory.CreateDirectory(Path.GetDirectoryName(dosyaYolu)!);
             File.WriteAllText(dosyaYolu, JsonSerializer.Serialize(_sayilar));
         }
-        catch (IOException) { } // Sayaç yazılamazsa başlatma yine çalışır.
+        catch (Exception) { } // Sayaç yazılamazsa (kilit, izin) başlatma yine çalışır.
     }
 
     static Dictionary<string, int> Yukle(string yol)
@@ -28,6 +28,6 @@ public sealed class KullanimSayaci(string dosyaYolu)
                 ? JsonSerializer.Deserialize<Dictionary<string, int>>(File.ReadAllText(yol)) ?? []
                 : [];
         }
-        catch (Exception e) when (e is IOException or JsonException) { return []; }
+        catch (Exception) { return []; } // Bozuk ya da okunamayan dosya: sıfırdan say.
     }
 }

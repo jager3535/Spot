@@ -126,7 +126,8 @@ public static class Eslestirici
                 'ü' or 'Ü' => 'u',
                 _ => char.ToLowerInvariant(c),
             };
-            if (k > 127)
+            // Emoji gibi vekil çiftlerin yarısı Normalize'da patlar; olduğu gibi bırak.
+            if (k > 127 && !char.IsSurrogate(k))
             {
                 var d = k.ToString().Normalize(NormalizationForm.FormD);
                 k = d.Length > 0 && CharUnicodeInfo.GetUnicodeCategory(d[0]) != UnicodeCategory.NonSpacingMark

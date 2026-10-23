@@ -14,6 +14,6 @@ static class Gunluk
             if (File.Exists(Yol) && new FileInfo(Yol).Length > 256 * 1024) File.Delete(Yol);
             File.AppendAllText(Yol, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {mesaj}{Environment.NewLine}");
         }
-        catch (IOException) { }
+        catch (Exception) { } // Günlük yazılamıyorsa uygulama yine çalışmalı.
     }
 }

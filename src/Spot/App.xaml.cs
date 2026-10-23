@@ -7,7 +7,16 @@ public partial class App : Application
     static Mutex? _tekOrnek;
     MainWindow? _pencere;
 
-    public App() => InitializeComponent();
+    public App()
+    {
+        InitializeComponent();
+        // Gün boyu arka planda çalışıyor: tek bir hata yüzünden sessizce ölmesin.
+        UnhandledException += (_, e) =>
+        {
+            Services.Gunluk.Yaz("Yakalanmamış hata: " + e.Exception);
+            e.Handled = true;
+        };
+    }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
