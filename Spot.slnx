@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Spot.Core/Spot.Core.csproj" />
+    <Project Path="src/Spot/Spot.csproj">
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Spot.Tests/Spot.Tests.csproj" />
+  </Folder>
+</Solution>

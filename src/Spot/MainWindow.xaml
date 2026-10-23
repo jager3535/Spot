@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="Spot.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Spot">
+
+    <Grid x:Name="Kok" Padding="12" VerticalAlignment="Top">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Hap şeklinde arama kutusu -->
+        <Grid Height="56" CornerRadius="28" Padding="20,0,10,0"
+              Background="#1FFFFFFF" BorderBrush="#24FFFFFF" BorderThickness="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <FontIcon Glyph="&#xE721;" FontSize="20" Foreground="#CCFFFFFF" Margin="0,0,14,0" />
+
+            <!-- Soluk tamamlama: sorgu kadarı saydam, kalanı soluk. TextBox ile aynı font ve hizada. -->
+            <TextBlock x:Name="Hayalet" Grid.Column="1" VerticalAlignment="Center"
+                       FontSize="22" IsHitTestVisible="False" TextWrapping="NoWrap">
+                <Run x:Name="HayaletSorgu" Foreground="Transparent" /><Run x:Name="HayaletTamamlama" Foreground="#99FFFFFF" /><Run x:Name="HayaletEk" Foreground="#66FFFFFF" />
+            </TextBlock>
+
+            <TextBox x:Name="Kutu" Grid.Column="1" VerticalAlignment="Center"
+                     FontSize="22" Padding="0" MinHeight="0" BorderThickness="0"
+                     Background="Transparent" PlaceholderText="Uygulama ara"
+                     IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                     TextChanged="Kutu_TextChanged" PreviewKeyDown="Kutu_PreviewKeyDown">
+                <TextBox.Resources>
+                    <SolidColorBrush x:Key="TextControlBackground" Color="Transparent" />
+                    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent" />
+                    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent" />
+                    <SolidColorBrush x:Key="TextControlBorderBrush" Color="Transparent" />
+                    <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent" />
+                    <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent" />
+                    <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#80FFFFFF" />
+                    <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#80FFFFFF" />
+                    <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#80FFFFFF" />
+                    <Thickness x:Key="TextControlBorderThemeThicknessFocused">0</Thickness>
+                </TextBox.Resources>
+            </TextBox>
+        </Grid>
+
+        <!-- Sonuçlar -->
+        <StackPanel x:Name="Sonuclar" Grid.Row="1" Visibility="Collapsed" Margin="4,10,4,4" Spacing="2">
+            <TextBlock Text="En İyi Eşleşen" Style="{StaticResource BaslikStili}" />
+            <StackPanel x:Name="EnIyiAlan" />
+            <TextBlock x:Name="DigerBaslik" Text="Uygulamalar" Style="{StaticResource BaslikStili}" Margin="8,10,0,4" />
+            <StackPanel x:Name="DigerAlan" Spacing="2" />
+        </StackPanel>
+    </Grid>
+</Window>
