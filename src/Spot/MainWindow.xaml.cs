@@ -100,6 +100,7 @@ public sealed partial class MainWindow : Window
         var ortaY = (alan.Y - dis.Y + alan.Height / 2.0) / Olcek;
         Panel.Width = Genislik;
         Panel.Margin = new Thickness(0, Math.Max(0, ortaY - KapaliYukseklik / 2), 0, 0);
+        _altSinir = (alan.Y - dis.Y + alan.Height) / Olcek - AltBosluk;
 
         AppWindow.Show(true);
         Activate();
@@ -108,6 +109,8 @@ public sealed partial class MainWindow : Window
     }
 
     const double KapaliYukseklik = 80; // sonuç yokken panel: 12 + 56 kutu + 12
+    const double AltBosluk = 32;       // panel ile görev çubuğu arasında kalacak en az boşluk
+    double _altSinir = double.PositiveInfinity; // panelin inebileceği en alt nokta (DIP)
 
     void Gizle() => AppWindow.Hide();
 
@@ -144,9 +147,19 @@ public sealed partial class MainWindow : Window
         {
             Sonuclar.Visibility = Visibility.Visible;
             EnIyiAlan.Children.Add(Satir(_sonuclar[0], buyuk: true));
+            DigerBaslik.Visibility = Visibility.Visible;
+            // Kutu ortada sabit; liste ekranın altına çarpmadan sığdığı kadar satır gösterir.
             foreach (var e in _sonuclar.Skip(1).Take(EnFazlaSonuc))
-                DigerAlan.Children.Add(Satir(e, buyuk: false));
-            DigerBaslik.Visibility = _sonuclar.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+            {
+                var satir = Satir(e, buyuk: false);
+                DigerAlan.Children.Add(satir);
+                Panel.Measure(new Windows.Foundation.Size(Genislik, double.PositiveInfinity));
+                if (Panel.DesiredSize.Height <= _altSinir) continue; // DesiredSize üst boşluğu da içerir
+                DigerAlan.Children.Remove(satir);
+                _satirlar.Remove(satir);
+                break;
+            }
+            if (DigerAlan.Children.Count == 0) DigerBaslik.Visibility = Visibility.Collapsed;
         }
 
         SecimiBoya();
