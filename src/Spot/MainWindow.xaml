@@ -7,43 +7,37 @@
 
     <!-- Kok tüm ekranı kaplayan perde (saydam ama tıklanabilir); Panel ortadaki cam katman. -->
     <Grid x:Name="Kok" Background="Transparent">
-    <!-- Panel: Liquid Glass benzeri cam. Katmanlar alttan üste: gölge, gövde, üst parıltı,
-         iç kenar ışığı, dış parlak kenar, içerik. Köşe 40 = kutunun 28'i + 12 iç boşluk. -->
+    <!-- Panel: macOS Spotlight benzeri. Katmanlar alttan üste: yumuşak gölge, gövde (ince
+         kenarlı), içerik. Arama satırı gövdeye gömülü; sonuçlar ince bir çizgiyle ayrılır. -->
     <Grid x:Name="Panel" HorizontalAlignment="Center" VerticalAlignment="Top">
-        <Border Margin="-10,6,-10,-22" CornerRadius="50" Background="#14000000" IsHitTestVisible="False" />
-        <Border Margin="-4,3,-4,-10" CornerRadius="44" Background="#1C000000" IsHitTestVisible="False" />
-        <Border CornerRadius="40" Background="{StaticResource CamDolgu}" />
-        <Border CornerRadius="40,40,0,0" Height="70" VerticalAlignment="Top"
-                Background="{StaticResource CamParilti}" IsHitTestVisible="False" />
-        <Border Margin="1.5" CornerRadius="38.5" BorderThickness="1"
-                BorderBrush="{StaticResource CamIcKenar}" IsHitTestVisible="False" />
-        <Border CornerRadius="40" BorderThickness="1.5"
-                BorderBrush="{StaticResource CamKenar}" IsHitTestVisible="False" />
-    <Grid Padding="12">
+        <Border Margin="-8,6,-8,-18" CornerRadius="28" Background="#12000000" IsHitTestVisible="False" />
+        <Border Margin="-3,2,-3,-6" CornerRadius="23" Background="#1E000000" IsHitTestVisible="False" />
+        <Border CornerRadius="20" Background="{StaticResource PanelDolgu}"
+                BorderThickness="1" BorderBrush="{StaticResource PanelKenar}" />
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Hap şeklinde arama kutusu: panelin içinde ikinci, daha küçük bir cam damlası -->
-        <Grid Height="56" CornerRadius="28" Padding="20,0,10,0"
-              Background="{StaticResource DamlaDolgu}" BorderBrush="{StaticResource DamlaKenar}" BorderThickness="1">
+        <!-- Arama satırı: ayrı kutu yok, gövdenin kendisi -->
+        <Grid Height="60" Padding="20,0,16,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <FontIcon Glyph="&#xE721;" FontSize="20" Foreground="#CCFFFFFF" Margin="0,0,14,0" />
+            <FontIcon Glyph="&#xE721;" FontSize="20" Foreground="#99FFFFFF" Margin="0,0,14,0" />
 
             <!-- Soluk tamamlama: sorgu kadarı saydam, kalanı soluk. TextBox ile aynı font ve hizada. -->
             <!-- Alt pay 1.6: TextBox metni TextBlock'tan ~1 px yukarıda çiziyor (125%'te ölçüldü). -->
             <TextBlock x:Name="Hayalet" Grid.Column="1" VerticalAlignment="Center" Margin="0,0,0,1.6"
-                       FontSize="22" IsHitTestVisible="False" TextWrapping="NoWrap">
+                       FontSize="24" FontWeight="Light" IsHitTestVisible="False" TextWrapping="NoWrap">
                 <Run x:Name="HayaletSorgu" Foreground="Transparent" /><Run x:Name="HayaletTamamlama" Foreground="#99FFFFFF" /><Run x:Name="HayaletEk" Foreground="#66FFFFFF" />
             </TextBlock>
 
             <TextBox x:Name="Kutu" Grid.Column="1" VerticalAlignment="Center"
-                     FontSize="22" Padding="0" MinHeight="0" BorderThickness="0"
+                     FontSize="24" FontWeight="Light" Padding="0" MinHeight="0" BorderThickness="0"
                      Background="Transparent" PlaceholderText="Uygulama ara"
                      IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
                      TextChanged="Kutu_TextChanged" PreviewKeyDown="Kutu_PreviewKeyDown">
@@ -63,12 +57,13 @@
         </Grid>
 
         <!-- Sonuçlar -->
-        <StackPanel x:Name="Sonuclar" Grid.Row="1" Visibility="Collapsed" Margin="4,10,4,4" Spacing="2">
+        <StackPanel x:Name="Sonuclar" Grid.Row="1" Visibility="Collapsed" Padding="10,6,10,10" Spacing="2"
+                    BorderThickness="0,1,0,0" BorderBrush="{StaticResource Ayirici}">
             <TextBlock Text="En İyi Eşleşen" Style="{StaticResource BaslikStili}" />
             <StackPanel x:Name="EnIyiAlan" />
-            <TextBlock x:Name="DigerBaslik" Text="Uygulamalar" Style="{StaticResource BaslikStili}" Margin="8,10,0,4" />
+            <TextBlock x:Name="DigerBaslik" Text="Uygulamalar" Style="{StaticResource BaslikStili}" Margin="10,10,0,4" />
             <StackPanel x:Name="DigerAlan" Spacing="2" />
-            <TextBlock x:Name="KlasorBaslik" Text="Klasörler" Style="{StaticResource BaslikStili}" Margin="8,10,0,4" />
+            <TextBlock x:Name="KlasorBaslik" Text="Klasörler" Style="{StaticResource BaslikStili}" Margin="10,10,0,4" />
             <StackPanel x:Name="KlasorAlan" Spacing="2" />
         </StackPanel>
     </Grid>

@@ -3,7 +3,7 @@
 | Ad | Değer | Kodda |
 |---|---|---|
 | Kısayol | Alt + `` ` `` (`MOD_ALT`, `VK_OEM_3` = 0xC0) | `KisayolDinleyici` |
-| Panel genişliği | 680 DIP, köşe 40 (kutu 28 + 12 boşluk) | `MainWindow.Genislik`, `MainWindow.xaml` |
+| Panel genişliği | 680 DIP, köşe 20 (satır 10 + 10 boşluk), arama satırı 60 | `MainWindow.Genislik`, `MainWindow.xaml` |
 | Gösterilen en fazla sonuç | 1 en iyi + 6 diğer, ekrana sığdığı kadar (alt boşluk 32 DIP) | `MainWindow.EnFazlaSonuc`, `AltBosluk` |
 | Aranan klasörler | Ekran Görüntüleri (FOLDERID_Screenshots), İndirilenler (FOLDERID_Downloads) | `UygulamaDizini.SabitKlasorler` |
 | Kullanım verisi | `%LOCALAPPDATA%\Spot\kullanim.json` | `App` |

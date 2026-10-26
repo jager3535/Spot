@@ -14,6 +14,8 @@ Referans: iPhone Spotlight ekran görüntüsü (`spot` yazınca kutuda soluk `sp
 - Bilgisayar açılınca arka planda sessizce başlar; tek örnek çalışır.
 - **Buzlu cam ikisi birden** (23.10, Hüseyin seçti): tüm ekran bulanık + kararmış perde, panel
   kendisi de ayrı, daha açık bir cam. Perdeye tıklamak Spot'u kapatır.
+- **macOS Spotlight görünümü** (26.10, Hüseyin seçti): Liquid Glass katmanları kalktı; koyu yarı
+  saydam panel (köşe 20), tek ince kenar, gömülü arama satırı, düz mavi seçim. Perde aynı kaldı.
 
 ## İlk sürüme girmeyecek (bilinçli)
 

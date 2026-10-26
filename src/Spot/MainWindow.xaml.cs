@@ -19,10 +19,8 @@ public sealed partial class MainWindow : Window
     const double Genislik = 680;   // SABITLER.md
     const int EnFazlaSonuc = 6;    // en iyi eşleşenin altındaki uygulama sayısı
 
-    // Seçili satır panelin içinde küçük bir cam damlası (App.xaml'daki Damla fırçaları).
-    static Brush DamlaDolgu => (Brush)Application.Current.Resources["DamlaDolgu"];
-    static Brush DamlaKenar => (Brush)Application.Current.Resources["DamlaKenar"];
-    static readonly Brush KartArkaPlan = new SolidColorBrush(ColorHelper.FromArgb(0x10, 0xFF, 0xFF, 0xFF));
+    // Seçili satır macOS'taki gibi düz mavi (App.xaml'daki SecimDolgu).
+    static Brush SecimDolgu => (Brush)Application.Current.Resources["SecimDolgu"];
     static readonly Brush Saydam = new SolidColorBrush(Colors.Transparent);
 
     readonly IntPtr _hwnd;
@@ -109,7 +107,7 @@ public sealed partial class MainWindow : Window
         Kutu.Focus(FocusState.Programmatic);
     }
 
-    const double KapaliYukseklik = 80; // sonuç yokken panel: 12 + 56 kutu + 12
+    const double KapaliYukseklik = 60; // sonuç yokken panel: yalnız arama satırı
     const double AltBosluk = 32;       // panel ile görev çubuğu arasında kalacak en az boşluk
     double _altSinir = double.PositiveInfinity; // panelin inebileceği en alt nokta (DIP)
 
@@ -231,10 +229,9 @@ public sealed partial class MainWindow : Window
         var satir = new Border
         {
             Child = icerik,
-            // Panel 40, iç boşluk 12 → kart 28 (eş merkezli); küçük satırlar hap gibi.
-            CornerRadius = new CornerRadius(buyuk ? 28 : 18),
-            BorderThickness = new Thickness(1),
-            Padding = buyuk ? new Thickness(14) : new Thickness(10, 7, 10, 7),
+            // Panel 20, iç boşluk 10 → satır 10 (eş merkezli).
+            CornerRadius = new CornerRadius(10),
+            Padding = buyuk ? new Thickness(12) : new Thickness(10, 6, 10, 6),
         };
         // Sıra olay anında bulunur: satırlar gruplara dağıldıktan sonra yeniden sıralanıyor.
         satir.Tapped += (_, _) => Ac(_satirlar.IndexOf(satir));
@@ -260,8 +257,7 @@ public sealed partial class MainWindow : Window
     {
         for (var i = 0; i < _satirlar.Count; i++)
         {
-            _satirlar[i].Background = i == _secili ? DamlaDolgu : i == 0 ? KartArkaPlan : Saydam;
-            _satirlar[i].BorderBrush = i == _secili ? DamlaKenar : Saydam;
+            _satirlar[i].Background = i == _secili ? SecimDolgu : Saydam;
         }
         HayaletiGuncelle();
     }

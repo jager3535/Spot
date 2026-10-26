@@ -17,8 +17,8 @@ type a few letters, hit Enter.*
 - **Başlat menüsündeki her şey**: masaüstü ve Microsoft Store uygulamaları `shell:AppsFolder`
   üzerinden taranır.
 - **Klasörler**: Ekran Görüntüleri ve İndirilenler aramada ayrı başlıkla çıkar.
-- **Liquid Glass benzeri görünüm**: tüm ekran bulanıklaşıp kararır, panelin kendi camı, ışık
-  kenarları ve oval köşeler.
+- **macOS Spotlight benzeri görünüm**: tüm ekran bulanıklaşıp kararır; koyu, yarı saydam panel,
+  gövdeye gömülü arama satırı ve düz mavi seçim.
 - Klavyeyle tam kontrol: `↑/↓` seçim, `Enter` açar, `Esc` ya da dışarı tıklamak kapatır.
 - Arka planda sessiz çalışır, tek örnek, ek runtime kurulumu gerektirmez (self-contained).
 
